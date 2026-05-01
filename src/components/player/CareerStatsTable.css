@@ -1,0 +1,64 @@
+/* src/components/player/CareerStatsTable.css */
+
+.stats-table-container {
+    width: 100%;
+    overflow-x: auto;        /* horizontal scroll if table is too wide */
+    margin-top: 24px;
+}
+
+.stats-table-container h2 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;   /* removes gaps between cells */
+    font-size: 0.875rem;         /* slightly smaller than default */
+    text-align: center;
+}
+
+/* Header row */
+.stats-table thead th {
+    background-color: #1e3a5f;
+    color: #ffffff;
+    padding: 10px 8px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    position: sticky;            /* stays visible when scrolling */
+    top: 0;
+}
+
+/* All data cells */
+.stats-table tbody td {
+    padding: 8px 6px;
+    border-bottom: 1px solid #2a2a2a;
+    color: #d0d0d0;
+}
+
+/* Zebra striping - every other row slightly lighter */
+.stats-table tbody tr:nth-child(even) {
+    background-color: #1a1a2e;
+}
+
+.stats-table tbody tr:nth-child(odd) {
+    background-color: #12121f;
+}
+
+/* Highlight row on hover */
+.stats-table tbody tr:hover {
+    background-color: #2a3f6f;
+    cursor: pointer;
+}
+
+/* Make the year column bold since it's the key identifier */
+.stats-table tbody td:first-child {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* Highlight rate stats (AVG, OBP, SLG, OPS) columns */
+.stats-table tbody td.rate-stat {
+    color: #7eb8f7;
+}
