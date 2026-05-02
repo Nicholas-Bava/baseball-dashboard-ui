@@ -1,18 +1,18 @@
 // src/components/player/CareerStatChart.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
-    LineChart,
+    ComposedChart,
     Line,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
-    ResponsiveContainer
+    Legend,
+    ResponsiveContainer,
 } from 'recharts'
+import { getBattingLeagueContext } from '../../api/baseballApi'
+import './CareerStatChart.css'
 
-// Stats available in the toggle
-// key matches the field name in our batting data
-// label is what the user sees
 const AVAILABLE_STATS = [
     { key: 'homeRuns',    label: 'Home Runs' },
     { key: 'avg',         label: 'Batting Average' },
@@ -24,36 +24,130 @@ const AVAILABLE_STATS = [
     { key: 'runs',        label: 'Runs' },
 ]
 
+const LOWER_IS_BETTER = ['era', 'whip', 'walksPer9Inn', 'hitsPer9Inn']
+
+const isGoodAboveAverage = (stat) => !LOWER_IS_BETTER.includes(stat)
+
+// Outside CareerStatChart - above the function declaration
+const CustomTooltip = ({ active, payload, label, chartData }) => {
+    if (active && payload && payload.length) {
+        const leaderName = chartData.find(d => d.season === label)?.leagueLeaderName
+        return (
+            <div className="chart-tooltip">
+                <p className="tooltip-season">{label}</p>
+                {payload.map((entry, index) => (
+                    <p key={index} style={{ color: entry.color }}>
+                        {entry.name}: {entry.value}
+                        {entry.name === 'League Leader' && leaderName
+                            ? ` (${leaderName})`
+                            : ''}
+                    </p>
+                ))}
+            </div>
+        )
+    }
+    return null
+}
+
+
 function CareerStatChart({ batting }) {
 
-    // Track which stat the chart is currently showing
     const [selectedStat, setSelectedStat] = useState('homeRuns')
+
+    // League context data - average and leader per season
+    const [leagueContext, setLeagueContext] = useState([])
+
+    const RATE_STATS = ['avg', 'obp', 'slg', 'ops', 'babip']
+
+    const formatYAxis = (value) => {
+        if (RATE_STATS.includes(selectedStat)) {
+            return value.toFixed(3).replace('0.', '.')
+        }
+        return Math.round(value)
+    }
+
+    // Sort batting by season for the chart
+    const sortedBatting = [...batting].sort((a, b) => a.season - b.season)
+
+    // Extract the list of seasons from the player's data
+    // We send this to the API so we only get context for seasons the player played
+    const seasons = sortedBatting.map(s => s.season)
+
+    useEffect(() => {
+        if (seasons.length === 0) return
+
+        // Fetch league context whenever the selected stat changes
+        getBattingLeagueContext(selectedStat, seasons)
+            .then(response => {
+                setLeagueContext(response.data)
+            })
+            .catch(err => {
+                console.error('Failed to fetch league context', err)
+                setLeagueContext([])
+            })
+
+    }, [selectedStat]) // re-runs every time user toggles a stat
+
+    // Merge player data with league context into one array for Recharts
+    // Recharts needs all three values on the same data point object
+    const chartData = sortedBatting.map(season => {
+        const context = leagueContext.find(c => c.season === season.season)
+        const playerValue = parseFloat(season[selectedStat]) || null
+        const leagueAverage = context ? context.leagueAverage : null
+        const leagueLeaderValue = context ? context.leagueLeaderValue : null
+
+        // Determine if player is performing "well" based on stat direction
+        const goodAboveAvg = isGoodAboveAverage(selectedStat)
+        const isAboveAverage = playerValue !== null && leagueAverage !== null
+            && playerValue > leagueAverage
+
+        // For "good above average" stats: above = good (green), below = bad (red)
+        // For "lower is better" stats: above = bad (red), below = good (green)
+        const isPerformingWell = goodAboveAvg ? isAboveAverage : !isAboveAverage
+
+        return {
+            season: season.season,
+            playerValue,
+            leagueAverage,
+            leagueLeaderValue,
+            leagueLeaderName: context ? context.leagueLeaderName : null,
+            // Split into above/below for colored shading
+            goodValue: isPerformingWell ? playerValue : leagueAverage,
+            badValue: isPerformingWell ? leagueAverage : playerValue,
+        }
+    })
+
+    const validValues = chartData
+        .flatMap(d => [d.playerValue, d.leagueAverage, d.leagueLeaderValue])
+        .filter(v => v !== null && v !== undefined && !isNaN(v))
+
+    const yMin = validValues.length > 0
+        ? Math.max(0, Math.min(...validValues) * 0.9)
+        : 'auto'
+
+    const yMax = validValues.length > 0
+        ? Math.max(...validValues) * 1.1
+        : 'auto'
+
+
+    // Debug
+    console.log('chartData:', chartData)
+    console.log('validValues:', validValues)
+    console.log('yMin:', yMin, 'yMax:', yMax)
 
     if (!batting || batting.length === 0) {
         return <p>No chart data available.</p>
     }
 
-    // Sort by season so the line goes left to right chronologically
-    const chartData = [...batting].sort((a, b) => a.season - b.season)
-
-    // Add this function above the component
-    const formatYAxis = (value) => {
-        if (typeof value === 'number' && value < 1 && value > 0) {
-            // Batting average style - 3 decimal places, no leading zero
-            return value.toFixed(3).replace('0.', '.')
-        }
-        return value
-    }
-
     return (
-        <div>
+        <div className="chart-container">
             <h2>Career Stat Chart</h2>
 
-            {/* Stat toggle buttons */}
-            <div>
+            <div className="stat-toggle">
                 {AVAILABLE_STATS.map(stat => (
                     <button
                         key={stat.key}
+                        className={selectedStat === stat.key ? 'active' : ''}
                         onClick={() => setSelectedStat(stat.key)}
                     >
                         {stat.label}
@@ -61,20 +155,122 @@ function CareerStatChart({ batting }) {
                 ))}
             </div>
 
-            {/* The chart */}
             <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                <ComposedChart
+                    data={chartData}
+                    margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="season" />
-                    <YAxis tickFormatter={formatYAxis} />
-                    <Tooltip />
+                    <YAxis tickFormatter={formatYAxis} domain={[yMin, yMax]} />
+                    <Tooltip content={<CustomTooltip chartData={chartData} />} />
+                    <Legend />
+
+                    {/* Player line - solid teal with custom dots that draw gap lines */}
                     <Line
                         type="monotone"
-                        dataKey={selectedStat}
-                        stroke="#8884d8"
-                        dot={true}
+                        dataKey="playerValue"
+                        name="Player"
+                        stroke="#0891b2"
+                        strokeWidth={2}
+                        connectNulls={false}
+                        label={(props) => {
+                            const { x, y, value } = props
+                            if (!value) return null
+                            return (
+                                <text
+                                    x={x + 10}
+                                    y={y - 8}
+                                    textAnchor="middle"
+                                    fontSize={11}
+                                    fontWeight={600}
+                                    fill="#0891b2"
+                                >
+                                    {RATE_STATS.includes(selectedStat)
+                                        ? value.toFixed(3).replace('0.', '.')
+                                        : Math.round(value)}
+                                </text>
+                            )
+                        }}
+                        dot={(props) => {
+                            const { cx, cy, payload, height, points } = props
+
+                            if (!payload.leagueAverage || !payload.leagueLeaderValue) {
+                                return <circle key={payload.season} cx={cx} cy={cy} r={4} fill="#0891b2" />
+                            }
+
+                            // Calculate pixel positions using the points array
+                            // Find min and max y pixel values from points
+                            const yValues = points.map(p => p.value)
+                            const dataValues = points.map(p => ({ value: p.value, y: p.y }))
+
+                            // Get y pixel range from the rendered points
+                            const minDataValue = Math.min(...yValues)
+                            const maxDataValue = Math.max(...yValues)
+                            const minY = Math.min(...points.map(p => p.y))
+                            const maxY = Math.max(...points.map(p => p.y))
+
+                            // Linear interpolation to convert a data value to pixel y
+                            const valueToY = (val) => {
+                                return maxY + (maxY - minY) * (val - minDataValue) / (minDataValue - maxDataValue)
+                            }
+
+                            const yAverage = valueToY(payload.leagueAverage)
+                            const yLeader = valueToY(payload.leagueLeaderValue)
+
+                            const isGoodAbove = isGoodAboveAverage(selectedStat)
+                            const isGood = isGoodAbove
+                                ? payload.playerValue >= payload.leagueAverage
+                                : payload.playerValue <= payload.leagueAverage
+
+                            const avgColor = isGood ? '#10b981' : '#ef4444'
+
+                            return (
+                                <g key={payload.season}>
+                                    <line
+                                        x1={cx} y1={cy}
+                                        x2={cx} y2={yAverage}
+                                        stroke={avgColor}
+                                        strokeWidth={1.5}
+                                        strokeOpacity={0.8}
+                                    />
+                                    <line
+                                        x1={cx} y1={cy}
+                                        x2={cx} y2={yLeader}
+                                        stroke="#d97706"
+                                        strokeWidth={1}
+                                        strokeOpacity={0.5}
+                                    />
+                                    <circle cx={cx} cy={cy} r={4} fill="#0891b2" stroke="white" strokeWidth={1} />
+                                </g>
+                            )
+                        }}
                     />
-                </LineChart>
+
+                    {/* League average line - dashed gray */}
+                    <Line
+                        type="monotone"
+                        dataKey="leagueAverage"
+                        name="League Average"
+                        stroke="#94a3b8"
+                        strokeWidth={1.5}
+                        strokeDasharray="5 5"
+                        dot={false}
+                        connectNulls={false}
+                    />
+
+                    {/* League leader line - dotted gold */}
+                    <Line
+                        type="monotone"
+                        dataKey="leagueLeaderValue"
+                        name="League Leader"
+                        stroke="#d97706"
+                        strokeWidth={1.5}
+                        strokeDasharray="3 3"
+                        dot={false}
+                        connectNulls={false}
+                    />
+                </ComposedChart>
             </ResponsiveContainer>
         </div>
     )

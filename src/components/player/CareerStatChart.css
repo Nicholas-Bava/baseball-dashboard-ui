@@ -1,0 +1,65 @@
+.chart-container {
+    width: 100%;
+    margin-top: 24px;
+    margin-bottom: 32px;
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.chart-container h2 {
+    text-align: center;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.stat-toggle button {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.stat-toggle button:hover {
+    background-color: var(--accent-subtle);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Active selected button - solid teal */
+.stat-toggle button.active {
+    background-color: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+}
+
+/* Custom tooltip */
+.chart-tooltip {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+}
+
+.tooltip-season {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}

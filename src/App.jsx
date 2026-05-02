@@ -2,21 +2,24 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import BattingLeaderboard from './pages/BattingLeaderboard'
 import PlayerProfile from './pages/PlayerProfile'
+import './App.css'
 
 function App() {
     return (
         <BrowserRouter>
-            {/* Navigation bar - visible on every page */}
-            <nav>
-                <Link to="/">Leaderboard</Link>
-                <Link to="/player">Player Profile</Link>
-            </nav>
+            <div className="app-container">
+                <nav className="nav">
+                    <Link to="/">Leaderboard</Link>
+                    <Link to="/player">Player Profile</Link>
+                </nav>
 
-            {/* Routes - only one renders at a time based on the URL */}
-            <Routes>
-                <Route path="/" element={<BattingLeaderboard />} />
-                <Route path="/player" element={<PlayerProfile />} />
-            </Routes>
+                <div className="page-content">
+                    <Routes>
+                        <Route path="/" element={<BattingLeaderboard />} />
+                        <Route path="/player" element={<PlayerProfile />} />
+                    </Routes>
+                </div>
+            </div>
         </BrowserRouter>
     )
 }

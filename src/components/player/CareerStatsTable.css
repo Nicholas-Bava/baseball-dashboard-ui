@@ -1,64 +1,72 @@
-/* src/components/player/CareerStatsTable.css */
-
 .stats-table-container {
     width: 100%;
-    overflow-x: auto;        /* horizontal scroll if table is too wide */
+    overflow-x: auto;
     margin-top: 24px;
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    /* Slightly stronger border so card lifts off the page */
+    border: 1px solid var(--border);
+    padding: 16px;
+    /* Subtle shadow to lift card */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .stats-table-container h2 {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     margin-bottom: 12px;
     text-align: center;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .stats-table {
     width: 100%;
-    border-collapse: collapse;   /* removes gaps between cells */
-    font-size: 0.875rem;         /* slightly smaller than default */
+    border-collapse: collapse;
+    font-size: 0.825rem;
     text-align: center;
 }
 
-/* Header row */
+/* Teal header row */
 .stats-table thead th {
-    background-color: #1e3a5f;
+    background-color: var(--accent);
     color: #ffffff;
     padding: 10px 8px;
     font-weight: 600;
-    letter-spacing: 0.05em;
-    position: sticky;            /* stays visible when scrolling */
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    position: sticky;
     top: 0;
 }
 
-/* All data cells */
 .stats-table tbody td {
     padding: 8px 6px;
-    border-bottom: 1px solid #2a2a2a;
-    color: #d0d0d0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
 }
 
-/* Zebra striping - every other row slightly lighter */
+/* Light gray alternating rows */
 .stats-table tbody tr:nth-child(even) {
-    background-color: #1a1a2e;
+    background-color: #f8fafc;
 }
 
 .stats-table tbody tr:nth-child(odd) {
-    background-color: #12121f;
+    background-color: var(--bg-card);
 }
 
-/* Highlight row on hover */
+/* Light teal hover */
 .stats-table tbody tr:hover {
-    background-color: #2a3f6f;
+    background-color: var(--bg-hover);
     cursor: pointer;
 }
 
-/* Make the year column bold since it's the key identifier */
 .stats-table tbody td:first-child {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
-/* Highlight rate stats (AVG, OBP, SLG, OPS) columns */
+/* Rate stats in teal */
 .stats-table tbody td.rate-stat {
-    color: #7eb8f7;
+    color: var(--accent);
+    font-weight: 500;
 }

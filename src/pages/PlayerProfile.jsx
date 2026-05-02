@@ -84,7 +84,22 @@ function PlayerProfile() {
                         playerName={profileData.playerName}
                         playerId={profileData.playerId}
                     />
-                    <CareerStatChart batting={profileData.batting} />
+
+                    {/* Two column layout */}
+                    <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+
+                        {/* Left half - chart */}
+                        <div style={{ width: '50%' }}>
+                            <CareerStatChart batting={profileData.batting} />
+                        </div>
+
+                        {/* Right half - placeholder for now */}
+                        <div style={{ width: '50%' }}>
+                        </div>
+
+                    </div>
+
+                    {/* Table full width below */}
                     <CareerStatsTable batting={profileData.batting} />
                 </div>
             )}

@@ -47,3 +47,14 @@ export const searchPlayers = (query) => {
 export const getPlayerProfile = (playerName) => {
     return api.get(`/players/${playerName}`)
 }
+
+export const getBattingLeagueContext = (stat, seasons) => {
+    // seasons is an array like [2016, 2017, 2018]
+    // join to comma separated string for the query param
+    return api.get('/league-context/batting', {
+        params: {
+            stat,
+            seasons: seasons.join(',')
+        }
+    })
+}
