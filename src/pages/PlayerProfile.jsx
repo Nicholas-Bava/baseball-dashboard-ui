@@ -4,6 +4,7 @@ import { getPlayerProfile, searchPlayers } from '../api/baseballApi'
 import PlayerHeader from '../components/player/PlayerHeader'
 import CareerStatsTable from '../components/player/CareerStatsTable'
 import CareerStatChart from '../components/player/CareerStatChart'
+import SeasonModal from '../components/player/SeasonModal'
 
 function PlayerProfile() {
 
@@ -18,6 +19,12 @@ function PlayerProfile() {
 
     // Any error message
     const [error, setError] = useState(null)
+
+    // Selected season for drill through
+    const [selectedSeason, setSelectedSeason] = useState(null)
+
+    // Temporary debug
+    console.log('selected season:', selectedSeason)
 
     // Called when the user hits the Search button
     const handleSearch = () => {
@@ -90,7 +97,10 @@ function PlayerProfile() {
 
                         {/* Left half - chart */}
                         <div style={{ width: '50%' }}>
-                            <CareerStatChart batting={profileData.batting} />
+                            <CareerStatChart
+                                batting={profileData.batting}
+                                playerName={profileData.playerName}
+                            />
                         </div>
 
                         {/* Right half - placeholder for now */}
@@ -100,7 +110,17 @@ function PlayerProfile() {
                     </div>
 
                     {/* Table full width below */}
-                    <CareerStatsTable batting={profileData.batting} />
+                    <CareerStatsTable
+                        batting={profileData.batting}
+                        onSeasonClick={(season) => setSelectedSeason(season)}
+                    />
+                    {selectedSeason && (
+                        <SeasonModal
+                            season={selectedSeason}
+                            playerName={profileData.playerName}
+                            onClose={() => setSelectedSeason(null)}
+                        />
+                    )}
                 </div>
             )}
         </div>

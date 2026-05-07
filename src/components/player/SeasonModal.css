@@ -1,0 +1,134 @@
+/* ============================================
+   SEASON MODAL
+   ============================================ */
+
+/* The overlay - sits on top of everything else */
+.modal-overlay {
+    /* Fixed means it stays in place even if you scroll */
+    position: fixed;
+    /* Cover the entire screen */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Semi-transparent dark background */
+    background-color: rgba(0, 0, 0, 0.3);
+    /* Sit above everything else on the page */
+    z-index: 1000;
+    /* Center the modal card inside the overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* The actual modal card */
+.modal-card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    /* Subtle shadow to lift it off the page */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border);
+    /* How big the modal is */
+    width: 80%;
+    max-width: 900px;
+    max-height: 85vh;
+    /* Scroll inside the modal if content is too tall */
+    overflow-y: auto;
+    padding: 32px;
+}
+
+/* Modal header row */
+.modal-header {
+    display: flex;
+    /* Push title to left, close button to right */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    /* Line under the header */
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 16px;
+}
+
+.modal-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modal-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* Close button */
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+/* Stat cards row */
+.stat-cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+/* Individual stat card */
+.stat-card {
+    flex: 1;
+    min-width: 120px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-card-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.stat-card-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.stat-card-value.rate {
+    font-size: 1.4rem;
+}
+
+/* Section titles inside modal */
+.modal-section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    margin-top: 24px;
+}
+
+/* Loading state */
+.modal-loading {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-secondary);
+}

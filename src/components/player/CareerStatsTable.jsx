@@ -25,7 +25,7 @@ const BATTING_COLUMNS = [
     { key: 'ops',           label: 'OPS' },
 ]
 
-function CareerStatsTable({ batting }) {
+function CareerStatsTable({ batting, onSeasonClick }) {
 
     if (!batting || batting.length === 0) {
         return <p>No batting data available.</p>
@@ -44,7 +44,11 @@ function CareerStatsTable({ batting }) {
                 </thead>
                 <tbody>
                 {batting.map((season, index) => (
-                    <tr key={index}>
+                    <tr
+                        key={index}
+                        onClick={() => onSeasonClick(season)}
+                        style={{ cursor: 'pointer' }}
+                    >
                         {BATTING_COLUMNS.map(col => (
                             <td
                                 key={col.key}

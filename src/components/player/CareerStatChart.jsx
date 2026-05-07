@@ -50,7 +50,7 @@ const CustomTooltip = ({ active, payload, label, chartData }) => {
 }
 
 
-function CareerStatChart({ batting }) {
+function CareerStatChart({ batting, playerName }) {
 
     const [selectedStat, setSelectedStat] = useState('homeRuns')
 
@@ -170,7 +170,7 @@ function CareerStatChart({ batting }) {
                     <Line
                         type="monotone"
                         dataKey="playerValue"
-                        name="Player"
+                        name={playerName}
                         stroke="#0891b2"
                         strokeWidth={2}
                         connectNulls={false}
@@ -193,27 +193,17 @@ function CareerStatChart({ batting }) {
                             )
                         }}
                         dot={(props) => {
-                            const { cx, cy, payload, height, points } = props
+                            const { cx, cy, payload, height } = props
 
                             if (!payload.leagueAverage || !payload.leagueLeaderValue) {
                                 return <circle key={payload.season} cx={cx} cy={cy} r={4} fill="#0891b2" />
                             }
 
-                            // Calculate pixel positions using the points array
-                            // Find min and max y pixel values from points
-                            const yValues = points.map(p => p.value)
-                            const dataValues = points.map(p => ({ value: p.value, y: p.y }))
+                            // pixels per data unit - using the full domain we already calculated
+                            const pixelsPerUnit = height / (yMax - yMin)
 
-                            // Get y pixel range from the rendered points
-                            const minDataValue = Math.min(...yValues)
-                            const maxDataValue = Math.max(...yValues)
-                            const minY = Math.min(...points.map(p => p.y))
-                            const maxY = Math.max(...points.map(p => p.y))
-
-                            // Linear interpolation to convert a data value to pixel y
-                            const valueToY = (val) => {
-                                return maxY + (maxY - minY) * (val - minDataValue) / (minDataValue - maxDataValue)
-                            }
+                            // calculate y position relative to the player dot (cy is our anchor)
+                            const valueToY = (val) => cy + (payload.playerValue - val) * pixelsPerUnit
 
                             const yAverage = valueToY(payload.leagueAverage)
                             const yLeader = valueToY(payload.leagueLeaderValue)
