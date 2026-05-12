@@ -1,7 +1,29 @@
 // src/components/player/SeasonModal.jsx
+import { useState, useEffect } from 'react'
+import { getBattingRankings } from '../../api/baseballApi'
 import './SeasonModal.css'
 
 function SeasonModal({ season, playerName, onClose }) {
+
+    // Rankings data from Flask - null while loading
+    const [rankings, setRankings] = useState(null)
+
+    // Whether rankings are still being fetched
+    const [rankingsLoading, setRankingsLoading] = useState(true)
+
+    // Runs once when the modal first opens
+    useEffect(() => {
+        getBattingRankings(season.playerId, season.season)
+            .then(response => {
+                setRankings(response.data)
+            })
+            .catch(err => {
+                console.error('Failed to fetch rankings', err)
+            })
+            .finally(() => {
+                setRankingsLoading(false)
+            })
+    }, [season.playerId, season.season])
     return (
         <div className="modal-overlay" onClick={onClose}>
 
@@ -59,6 +81,41 @@ function SeasonModal({ season, playerName, onClose }) {
                         <div className="stat-card-value">{season.hits ?? '-'}</div>
                     </div>
                 </div>
+                {/* League Rankings Section */}
+                <div className="modal-section-title">
+                    League Rankings — {season.season}
+                </div>
+
+                {/* Show loading while fetching */}
+                {rankingsLoading && (
+                    <div className="modal-loading">
+                        Loading rankings...
+                    </div>
+                )}
+
+                {/* Show rankings once loaded */}
+                {!rankingsLoading && rankings && (
+                    <div className="rankings-grid">
+                        {Object.entries(rankings).map(([stat, data]) => (
+                            data && (
+                                <div key={stat} className="ranking-row">
+                    <span className="ranking-stat-name">
+                        {stat.toUpperCase()}
+                    </span>
+                                    <span className="ranking-value">
+                        {data.value}
+                    </span>
+                                    <span className="ranking-rank">
+                        #{data.rank}
+                                        <span className="ranking-total">
+                            /{data.totalPlayers}
+                        </span>
+                    </span>
+                                </div>
+                            )
+                        ))}
+                    </div>
+                )}
 
             </div>
         </div>

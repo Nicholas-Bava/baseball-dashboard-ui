@@ -26,6 +26,12 @@ export const getBattingSeasonSummary = (year) => {
     return api.get(`/batting/season/${year}`)
 }
 
+export const getBattingRankings = (playerId, season) => {
+    return api.get('/league-context/rankings/batting', {
+        params: { playerId, season }
+    })
+}
+
 // Pitching endpoints
 export const getPitchingLeaderboard = (stat = 'era', season = null, limit = 25) => {
     return api.get('/pitching/leaderboard', {
