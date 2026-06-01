@@ -1,6 +1,7 @@
 // src/components/player/SeasonModal.jsx
 import { useState, useEffect } from 'react'
 import { getBattingRankings, getStatcastSeason, getStatcastRankings } from '../../api/baseballApi'
+import ZoneHeatMap from './ZoneHeatMap'
 import './SeasonModal.css'
 
 function SeasonModal({ season, playerName, onClose }) {
@@ -188,6 +189,14 @@ function SeasonModal({ season, playerName, onClose }) {
                                     <div className="modal-loading">No Statcast data available for this season</div>
                                 )}
                             </>
+                        )}
+
+                        {/* Zone Heat Map - only for 2015+ */}
+                        {season.season >= 2015 && (
+                            <ZoneHeatMap
+                                playerId={season.playerId}
+                                season={season.season}
+                            />
                         )}
 
                     </div>

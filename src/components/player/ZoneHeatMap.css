@@ -1,0 +1,35 @@
+.zone-heatmap-container {
+    margin-top: 24px;
+}
+
+.zone-heatmap-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+}
+
+.zone-heatmap-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+}
+
+.zone-stat-select {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    cursor: pointer;
+    outline: none;
+}
+
+.zone-stat-select:focus {
+    border-color: var(--accent);
+}
