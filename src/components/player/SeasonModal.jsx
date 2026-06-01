@@ -1,34 +1,86 @@
 // src/components/player/SeasonModal.jsx
 import { useState, useEffect } from 'react'
-import { getBattingRankings } from '../../api/baseballApi'
+import { getBattingRankings, getStatcastSeason, getStatcastRankings } from '../../api/baseballApi'
 import './SeasonModal.css'
 
 function SeasonModal({ season, playerName, onClose }) {
 
-    // Rankings data from Flask - null while loading
-    const [rankings, setRankings] = useState(null)
+    // Batting rankings from league context API
+    const [battingRankings, setBattingRankings] = useState(null)
 
-    // Whether rankings are still being fetched
-    const [rankingsLoading, setRankingsLoading] = useState(true)
+    // Statcast season totals
+    const [statcastData, setStatcastData] = useState(null)
 
-    // Runs once when the modal first opens
+    // Statcast rankings
+    const [statcastRankings, setStatcastRankings] = useState(null)
+
+    // Whether data is still loading
+    const [loading, setLoading] = useState(true)
+
+    // Check if player qualified for batting rankings
+    const didNotQualifyBatting = battingRankings &&
+        Object.values(battingRankings).every(v => v === null)
+
+    const BATTING_ROWS = [
+        { label: 'AVG', getValue: (s) => s.avg,           rankKey: 'avg' },
+        { label: 'OBP', getValue: (s) => s.obp,           rankKey: null },
+        { label: 'SLG', getValue: (s) => s.slg,           rankKey: null },
+        { label: 'OPS', getValue: (s) => s.ops,           rankKey: 'ops' },
+        { label: 'H',   getValue: (s) => s.hits,          rankKey: 'hits' },
+        { label: '2B',  getValue: (s) => s.doubles,       rankKey: 'doubles' },
+        { label: '3B',  getValue: (s) => s.triples,       rankKey: 'triples' },
+        { label: 'HR',  getValue: (s) => s.homeRuns,     rankKey: 'homeRuns' },
+        { label: 'RBI', getValue: (s) => s.rbi,           rankKey: 'rbi' },
+        { label: 'SB',  getValue: (s) => s.stolenBases,   rankKey: 'stolenBases' },
+        { label: 'BB',  getValue: (s) => s.baseOnBalls,   rankKey: null },
+        { label: 'SO',  getValue: (s) => s.strikeOuts,    rankKey: null },
+        { label: 'G',   getValue: (s) => s.gamesPlayed,   rankKey: null },
+        { label: 'XBH', getValue: (s) => {
+                const d = s.doubles ?? 0
+                const t = s.triples ?? 0
+                const hr = s.homeRuns ?? 0
+                return d + t + hr
+            }, rankKey: 'xbh' },
+    ]
+
+    const STATCAST_ROWS = [
+        { label: 'Exit Velo',    getValue: (sc) => sc.avg_exit_velo,  rankKey: 'avg_exit_velo' },
+        { label: 'Hard Hit %', getValue: (sc) => sc.hard_hit_pct?.toFixed(1), rankKey: 'hard_hit_pct' },
+        { label: 'Barrel %',     getValue: (sc) => sc.barrel_pct?.toFixed(1),    rankKey: 'barrel_pct' },
+        { label: 'Sweet Spot %', getValue: (sc) => sc.sweet_spot_pct?.toFixed(1), rankKey: 'sweet_spot_pct' },
+        { label: 'xBA',          getValue: (sc) => sc.xba?.toFixed(3).replace('0.', '.'),            rankKey: 'xba' },
+        { label: 'xwOBA', getValue: (sc) => sc.xwoba?.toFixed(3).replace('0.', '.'), rankKey: 'xwoba' },
+        { label: 'xwOBAcon',     getValue: (sc) => sc.xwobacon?.toFixed(3).replace('0.', '.'),       rankKey: 'xwobacon' },
+        { label: 'Whiff %',      getValue: (sc) => sc.whiff_pct?.toFixed(1),      rankKey: 'whiff_pct' },
+        { label: 'Chase %',      getValue: (sc) => sc.chase_pct?.toFixed(1),      rankKey: 'chase_pct' },
+    ]
+
     useEffect(() => {
+        let completed = 0
+        const checkDone = () => {
+            completed++
+            if (completed === 3) setLoading(false)
+        }
+
         getBattingRankings(season.playerId, season.season)
-            .then(response => {
-                setRankings(response.data)
-            })
-            .catch(err => {
-                console.error('Failed to fetch rankings', err)
-            })
-            .finally(() => {
-                setRankingsLoading(false)
-            })
+            .then(res => setBattingRankings(res.data))
+            .catch(err => console.error('Batting rankings failed', err))
+            .finally(checkDone)
+
+        getStatcastSeason(season.playerId, season.season)
+            .then(res => setStatcastData(res.data))
+            .catch(err => console.error('Statcast season failed', err))
+            .finally(checkDone)
+
+        getStatcastRankings(season.playerId, season.season)
+            .then(res => setStatcastRankings(res.data))
+            .catch(err => console.error('Statcast rankings failed', err))
+            .finally(checkDone)
+
     }, [season.playerId, season.season])
+
     return (
         <div className="modal-overlay" onClick={onClose}>
-
-            {/* stopPropagation prevents clicks inside the card
-                from closing the modal */}
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
 
                 {/* Header */}
@@ -41,79 +93,103 @@ function SeasonModal({ season, playerName, onClose }) {
                             Season Deep Dive
                         </div>
                     </div>
-                    <button className="modal-close" onClick={onClose}>
-                        ✕
-                    </button>
+                    <button className="modal-close" onClick={onClose}>✕</button>
                 </div>
 
-                {/* Key stat cards */}
-                <div className="stat-cards">
-                    <div className="stat-card">
-                        <div className="stat-card-label">Home Runs</div>
-                        <div className="stat-card-value">{season.homeRuns ?? '-'}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-label">RBI</div>
-                        <div className="stat-card-value">{season.rbi ?? '-'}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-label">Batting Avg</div>
-                        <div className="stat-card-value rate">{season.avg ?? '-'}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-label">OBP</div>
-                        <div className="stat-card-value rate">{season.obp ?? '-'}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-label">SLG</div>
-                        <div className="stat-card-value rate">{season.slg ?? '-'}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-label">OPS</div>
-                        <div className="stat-card-value rate">{season.ops ?? '-'}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-label">Games</div>
-                        <div className="stat-card-value">{season.gamesPlayed ?? '-'}</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-label">Hits</div>
-                        <div className="stat-card-value">{season.hits ?? '-'}</div>
-                    </div>
-                </div>
-                {/* League Rankings Section */}
-                <div className="modal-section-title">
-                    League Rankings — {season.season}
-                </div>
-
-                {/* Show loading while fetching */}
-                {rankingsLoading && (
-                    <div className="modal-loading">
-                        Loading rankings...
-                    </div>
+                {/* Loading state */}
+                {loading && (
+                    <div className="modal-loading">Loading...</div>
                 )}
 
-                {/* Show rankings once loaded */}
-                {!rankingsLoading && rankings && (
-                    <div className="rankings-grid">
-                        {Object.entries(rankings).map(([stat, data]) => (
-                            data && (
-                                <div key={stat} className="ranking-row">
-                    <span className="ranking-stat-name">
-                        {stat.toUpperCase()}
-                    </span>
-                                    <span className="ranking-value">
-                        {data.value}
-                    </span>
-                                    <span className="ranking-rank">
-                        #{data.rank}
-                                        <span className="ranking-total">
-                            /{data.totalPlayers}
-                        </span>
-                    </span>
+                {/* Content — only shows when all data is loaded */}
+                {!loading && (
+                    <div className="modal-stats-table">
+
+                        {/* BATTING SECTION */}
+                        <div className="modal-section-header">
+                            Batting
+                            {didNotQualifyBatting && (
+                                <span className="modal-section-qualifier">
+                                    Did not qualify — {season.plateAppearances} PA (min {season.season === 2020 ? 186 : 502})
+                                </span>
+                            )}
+                        </div>
+                        <table className="modal-table">
+                            <tbody>
+                            {BATTING_ROWS.map(row => {
+                                const value = row.getValue(season)
+                                const rankData = row.rankKey && battingRankings
+                                    ? battingRankings[row.rankKey]
+                                    : null
+
+                                return (
+                                    <tr key={row.label}>
+                                        <td className="modal-stat-name">{row.label}</td>
+                                        <td className="modal-stat-value">
+                                            {value ?? '-'}
+                                        </td>
+                                        <td className="modal-stat-rank">
+                                            {rankData
+                                                ? <span>#{rankData.rank}<span className="rank-total">/{rankData.totalPlayers}</span></span>
+                                                : <span className="rank-none">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                            </tbody>
+                        </table>
+
+                        {/* STATCAST SECTION */}
+                        {season.season < 2015 ? (
+                            <div className="modal-section-header">
+                                Statcast
+                                <span className="modal-section-qualifier" style={{color: 'var(--text-muted)'}}>
+                                    Not available — Statcast tracking began in 2015
+                                </span>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="modal-section-header">
+                                    Statcast
+                                    {season.season < 2020 && (
+                                        <span className="modal-section-qualifier">
+                                            Pre-2020 data may differ slightly from Baseball Savant
+                                        </span>
+                                    )}
                                 </div>
-                            )
-                        ))}
+                                {statcastData ? (
+                                    <table className="modal-table">
+                                        <tbody>
+                                        {STATCAST_ROWS.map(row => {
+                                            const value = row.getValue(statcastData)
+                                            const rankData = row.rankKey && statcastRankings
+                                                ? statcastRankings[row.rankKey]
+                                                : null
+
+                                            return (
+                                                <tr key={row.label}>
+                                                    <td className="modal-stat-name">{row.label}</td>
+                                                    <td className="modal-stat-value">
+                                                        {value ?? '-'}
+                                                    </td>
+                                                    <td className="modal-stat-rank">
+                                                        {rankData
+                                                            ? <span>#{rankData.rank}<span className="rank-total">/{rankData.totalPlayers}</span></span>
+                                                            : <span className="rank-none">—</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="modal-loading">No Statcast data available for this season</div>
+                                )}
+                            </>
+                        )}
+
                     </div>
                 )}
 

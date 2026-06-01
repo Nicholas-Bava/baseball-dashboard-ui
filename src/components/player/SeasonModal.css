@@ -183,3 +183,87 @@
     color: var(--text-muted);
     font-weight: 400;
 }
+
+/* Unified stats table */
+.modal-stats-table {
+    margin-top: 16px;
+}
+
+/* Section header spanning full width */
+.modal-section-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    padding: 12px 0 6px 0;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 4px;
+}
+
+/* The table itself */
+.modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+}
+
+/* Stat name column - left aligned */
+.modal-stat-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 7px 8px;
+    width: 40%;
+}
+
+/* Value column - center */
+.modal-stat-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding: 7px 8px;
+    width: 30%;
+    text-align: center;
+}
+
+/* Rank column - right aligned */
+.modal-stat-rank {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 7px 8px;
+    width: 30%;
+    text-align: right;
+}
+
+.rank-total {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.rank-none {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* Alternating row colors */
+.modal-table tbody tr:nth-child(even) {
+    background-color: var(--bg-secondary);
+}
+
+.modal-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.modal-section-qualifier {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--orange);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 10px;
+}

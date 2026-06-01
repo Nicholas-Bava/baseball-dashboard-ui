@@ -64,3 +64,21 @@ export const getBattingLeagueContext = (stat, seasons) => {
         }
     })
 }
+
+export const getStatcastSeason = (playerId, season) => {
+    return api.get('/statcast/season', {
+        params: { playerId, season }
+    })
+}
+
+export const getStatcastRankings = (playerId, season) => {
+    return api.get('/statcast/rankings', {
+        params: { playerId, season }
+    })
+}
+
+export const getStatcastZones = (playerId, season) => {
+    return api.get('/statcast/zones', {
+        params: { playerId, season }
+    })
+}
