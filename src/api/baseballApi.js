@@ -82,3 +82,9 @@ export const getStatcastZones = (playerId, season) => {
         params: { playerId, season }
     })
 }
+
+export const getStatDistribution = (stat, seasons) => {
+    return api.get('/league-context/distribution', {
+        params: { stat, seasons: seasons.join(',') }
+    })
+}
