@@ -86,18 +86,31 @@ function ZoneHeatMap({ playerId, season }) {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        if (!playerId || !season) return
-        setLoading(true)
-        setZoneData(null)
+        console.log('ZoneHeatMap effect - playerId:', playerId, 'season:', season)
+        if (!playerId || !season) {
+            console.log('Missing playerId or season - returning early')
+            return
+        }
+
+        let ignore = false
+
         getStatcastZones(playerId, season)
             .then(res => {
-                setZoneData(res.data)
-                setLoading(false)
+                if (!ignore) {
+                    setZoneData(res.data)
+                    setLoading(false)
+                }
             })
             .catch(err => {
-                console.error('Failed to load zone data', err)
-                setLoading(false)
+                console.log('Fetch error:', err.message)
+                if (!ignore) {
+                    setLoading(false)
+                }
             })
+
+        return () => {
+            ignore = true
+        }
     }, [playerId, season])
 
     const statConfig = ZONE_STATS.find(s => s.key === selectedStat)

@@ -194,6 +194,7 @@ function SeasonModal({ season, playerName, onClose }) {
                         {/* Zone Heat Map - only for 2015+ */}
                         {season.season >= 2015 && (
                             <ZoneHeatMap
+                                key={`${season.playerId}-${season.season}`}
                                 playerId={season.playerId}
                                 season={season.season}
                             />
