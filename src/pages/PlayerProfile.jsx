@@ -5,6 +5,7 @@ import PlayerHeader from '../components/player/PlayerHeader'
 import CareerStatsTable from '../components/player/CareerStatsTable'
 import CareerStatChart from '../components/player/CareerStatChart'
 import SeasonModal from '../components/player/SeasonModal'
+import CareerDistributionChart from '../components/player/CareerDistributionChart'
 
 function PlayerProfile() {
 
@@ -23,8 +24,11 @@ function PlayerProfile() {
     // Selected season for drill through
     const [selectedSeason, setSelectedSeason] = useState(null)
 
+    const [selectedStat, setSelectedStat] = useState('homeRuns')
+
     // Temporary debug
     console.log('selected season:', selectedSeason)
+    console.log('selected stat:', selectedStat)
 
     // Called when the user hits the Search button
     const handleSearch = () => {
@@ -92,28 +96,34 @@ function PlayerProfile() {
                         playerId={profileData.playerId}
                     />
 
-                    {/* Two column layout */}
+                    {/* Top row — chart left, stats table right */}
                     <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-
-                        {/* Left half - chart */}
-                        <div style={{ width: '50%' }}>
+                        <div style={{ flex: '0 0 55%' }}>
                             <CareerStatChart
                                 batting={profileData.batting}
                                 playerName={profileData.playerName}
+                                selectedStat={selectedStat}
+                                onStatChange={setSelectedStat}
                             />
                         </div>
-
-                        {/* Right half - placeholder for now */}
-                        <div style={{ width: '50%' }}>
+                        <div style={{ flex: '1', overflowX: 'auto' }}>
+                            <CareerStatsTable
+                                batting={profileData.batting}
+                                onSeasonClick={(season) => setSelectedSeason(season)}
+                            />
                         </div>
-
                     </div>
 
-                    {/* Table full width below */}
-                    <CareerStatsTable
-                        batting={profileData.batting}
-                        onSeasonClick={(season) => setSelectedSeason(season)}
-                    />
+                    {/* Full width heat map below */}
+                    <div style={{ marginTop: '24px' }}>
+                        <CareerDistributionChart
+                            batting={profileData.batting}
+                            playerName={profileData.playerName}
+                            selectedStat={selectedStat}
+                            onStatChange={setSelectedStat}
+                        />
+                    </div>
+
                     {selectedSeason && (
                         <SeasonModal
                             season={selectedSeason}

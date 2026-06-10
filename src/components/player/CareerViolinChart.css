@@ -1,0 +1,21 @@
+/* src/components/player/CareerDistributionChart.css */
+
+:root {
+    --violin-color: #7c3aed;  /* cool purple */
+}
+
+.dist-chart-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dist-chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 380px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}

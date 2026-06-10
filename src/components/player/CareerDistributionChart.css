@@ -1,0 +1,33 @@
+/* src/components/player/CareerDistributionChart.css */
+
+.dist-chart-container {
+    width: 100%;
+    position: relative;
+}
+
+.dist-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 380px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.dist-chart-inner {
+    position: relative;
+    width: 100%;
+}
+
+.dist-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.dist-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}

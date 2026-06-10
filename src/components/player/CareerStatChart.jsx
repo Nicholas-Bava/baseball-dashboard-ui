@@ -50,9 +50,7 @@ const CustomTooltip = ({ active, payload, label, chartData }) => {
 }
 
 
-function CareerStatChart({ batting, playerName }) {
-
-    const [selectedStat, setSelectedStat] = useState('homeRuns')
+function CareerStatChart({ batting, playerName, selectedStat, onStatChange }) {
 
     // League context data - average and leader per season
     const [leagueContext, setLeagueContext] = useState([])
@@ -129,12 +127,6 @@ function CareerStatChart({ batting, playerName }) {
         ? Math.max(...validValues) * 1.1
         : 'auto'
 
-
-    // Debug
-    console.log('chartData:', chartData)
-    console.log('validValues:', validValues)
-    console.log('yMin:', yMin, 'yMax:', yMax)
-
     if (!batting || batting.length === 0) {
         return <p>No chart data available.</p>
     }
@@ -148,7 +140,7 @@ function CareerStatChart({ batting, playerName }) {
                     <button
                         key={stat.key}
                         className={selectedStat === stat.key ? 'active' : ''}
-                        onClick={() => setSelectedStat(stat.key)}
+                        onClick={() => onStatChange(stat.key)}
                     >
                         {stat.label}
                     </button>
