@@ -1,22 +1,24 @@
 // src/components/batting/BattingLeaderboardTable.jsx
-
-// We import React's useState and useEffect hooks at the top of every component file
+// Simple presentational table that lists top batters for a season.
+// Props:
+// - data: array of player objects. Each object should contain keys like playerName, season, homeRuns, rbi, avg.
+// This component is intentionally small and only responsible for rendering the provided data.
 import { useState } from 'react'
 
-// This component receives 'data' as a prop - an array of player objects from Flask
 function BattingLeaderboardTable({ data }) {
-
-    // If no data has arrived yet, show a loading message
+    // If `data` is null/undefined we assume the parent is still fetching and show a loading state.
     if (!data) {
         return <p>Loading...</p>
     }
 
-    // If the array is empty, tell the user
+    // If the API returned an empty array, show a friendly message.
     if (data.length === 0) {
         return <p>No data found.</p>
     }
 
-    // Otherwise render the table
+    // Otherwise map each player to a table row. We use the `index` as the key here because
+    // the leaderboard is a small, static list for display purposes. For large or dynamic lists
+    // prefer a stable unique id (e.g. playerId) as the key.
     return (
         <table>
             <thead>

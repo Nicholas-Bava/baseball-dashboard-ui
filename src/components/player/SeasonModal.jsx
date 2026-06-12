@@ -1,4 +1,9 @@
 // src/components/player/SeasonModal.jsx
+// Modal dialog that shows detailed season-level stats for a single player.
+// Props:
+// - season: an object representing a single season (contains season number, playerId, and stats)
+// - playerName: string used in the modal header
+// - onClose: callback to close the modal
 import { useState, useEffect } from 'react'
 import { getBattingRankings, getStatcastSeason, getStatcastRankings } from '../../api/baseballApi'
 import ZoneHeatMap from './ZoneHeatMap'
@@ -6,19 +11,19 @@ import './SeasonModal.css'
 
 function SeasonModal({ season, playerName, onClose }) {
 
-    // Batting rankings from league context API
+    // Batting rankings from league context API (per-stat rank & total players)
     const [battingRankings, setBattingRankings] = useState(null)
 
-    // Statcast season totals
+    // Statcast season aggregated metrics (exit velocity, xwOBA, etc.)
     const [statcastData, setStatcastData] = useState(null)
 
-    // Statcast rankings
+    // Statcast rankings for those metrics (rank/total for each metric)
     const [statcastRankings, setStatcastRankings] = useState(null)
 
-    // Whether data is still loading
+    // Whether data is still loading — used to show loading placeholder until all API calls finish
     const [loading, setLoading] = useState(true)
 
-    // Check if player qualified for batting rankings
+    // Check if the batting rankings response indicates the player did not qualify (all null)
     const didNotQualifyBatting = battingRankings &&
         Object.values(battingRankings).every(v => v === null)
 

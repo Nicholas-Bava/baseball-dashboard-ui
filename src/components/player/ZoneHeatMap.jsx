@@ -1,3 +1,11 @@
+// src/components/player/ZoneHeatMap.jsx
+// Renders a 3x3 + 4-corner strike zone visualization where each zone is colored
+// by how the player's metric compares to the league in that zone.
+// Props:
+// - playerId: id used to fetch the player's statcast zone data
+// - season: year to fetch
+// The component fetches the zone data via getStatcastZones and paints an SVG
+// with per-zone colors and labels. Utility functions compute color and formatted values.
 import { useState, useEffect } from 'react'
 import { getStatcastZones } from '../../api/baseballApi'
 import './ZoneHeatMap.css'

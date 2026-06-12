@@ -1,6 +1,12 @@
 // src/pages/PlayerProfile.jsx
+// Page that lets the user search for a player and view career visualizations and tables.
+// High level flow:
+// - User types a name and clicks Search -> calls getPlayerProfile
+// - If successful, profileData contains a playerName, playerId and batting[] array
+// - The page renders multiple child components (header, stat chart, stats table, distribution)
+// Props: none (this is a page-level component)
 import { useState } from 'react'
-import { getPlayerProfile, searchPlayers } from '../api/baseballApi'
+import { getPlayerProfile } from '../api/baseballApi'
 import PlayerHeader from '../components/player/PlayerHeader'
 import CareerStatsTable from '../components/player/CareerStatsTable'
 import CareerStatChart from '../components/player/CareerStatChart'
@@ -9,42 +15,38 @@ import CareerDistributionChart from '../components/player/CareerDistributionChar
 
 function PlayerProfile() {
 
-    // What the user is typing in the search box
+    // searchInput: controlled input for the player's name
     const [searchInput, setSearchInput] = useState('')
 
-    // The actual player data from Flask
+    // profileData: object returned from API containing playerName, playerId and batting array
     const [profileData, setProfileData] = useState(null)
 
-    // Whether we are waiting for Flask to respond
+    // loading and error states for the search call
     const [loading, setLoading] = useState(false)
-
-    // Any error message
     const [error, setError] = useState(null)
 
-    // Selected season for drill through
+    // When the user clicks a season row we store it here to open the SeasonModal
     const [selectedSeason, setSelectedSeason] = useState(null)
 
+    // The stat currently selected across charts (e.g. 'homeRuns')
     const [selectedStat, setSelectedStat] = useState('homeRuns')
 
-    // Temporary debug
+    // Debug logs (safe to remove once you understand flow)
     console.log('selected season:', selectedSeason)
     console.log('selected stat:', selectedStat)
 
-    // Called when the user hits the Search button
+    // Called when the user hits the Search button. We validate the input, set loading,
+    // call the API and then update state based on the response.
     const handleSearch = () => {
-
-        // Don't search if the box is empty
         if (!searchInput.trim()) return
 
-        // Reset state before new search
         setLoading(true)
         setError(null)
         setProfileData(null)
 
-        // Call Flask
         getPlayerProfile(searchInput, 'batting')
             .then(response => {
-                // Check if the profile has any batting data
+                // Ensure there is batting data before rendering the player UI
                 if (!response.data.batting || response.data.batting.length === 0) {
                     setError('No batting data found for this player.')
                 } else {
@@ -54,15 +56,11 @@ function PlayerProfile() {
             .catch(() => {
                 setError('Player not found. Check the spelling and try again.')
             })
-            .finally(() => {
-                // Always stop loading when the call finishes
-                setLoading(false)
-            })
+            .finally(() => setLoading(false))
     }
 
-    // Called on every keystroke in the search box
+    // Support pressing Enter in the search input
     const handleKeyDown = (e) => {
-        // Allow user to press Enter instead of clicking the button
         if (e.key === 'Enter') handleSearch()
     }
 
@@ -82,13 +80,11 @@ function PlayerProfile() {
                 <button onClick={handleSearch}>Search</button>
             </div>
 
-            {/* Loading state */}
+            {/* Loading and error states */}
             {loading && <p>Loading...</p>}
-
-            {/* Error state */}
             {error && <p>{error}</p>}
 
-            {/* Player data - only renders when profileData exists */}
+            {/* When profileData is present render the header, charts and tables */}
             {profileData && (
                 <div>
                     <PlayerHeader
@@ -96,7 +92,7 @@ function PlayerProfile() {
                         playerId={profileData.playerId}
                     />
 
-                    {/* Top row — chart left, stats table right */}
+                    {/* Top row: career stat chart on the left and the raw stats table on the right */}
                     <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
                         <div style={{ flex: '0 0 55%' }}>
                             <CareerStatChart
@@ -114,7 +110,7 @@ function PlayerProfile() {
                         </div>
                     </div>
 
-                    {/* Full width heat map below */}
+                    {/* Full-width career distribution heatmap/violin chart */}
                     <div style={{ marginTop: '24px' }}>
                         <CareerDistributionChart
                             batting={profileData.batting}
@@ -124,6 +120,7 @@ function PlayerProfile() {
                         />
                     </div>
 
+                    {/* Show the modal when a season row is selected */}
                     {selectedSeason && (
                         <SeasonModal
                             season={selectedSeason}

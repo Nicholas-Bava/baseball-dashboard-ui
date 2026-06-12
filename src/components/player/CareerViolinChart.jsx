@@ -1,4 +1,10 @@
-// src/components/player/CareerDistributionChart.jsx
+// src/components/player/CareerViolinChart.jsx
+// This component renders a set of "violin" density plots across seasons for a chosen stat.
+// A violin plot shows the distribution (KDE) of a stat for each season; the player's
+// per-season values are overlaid as dots and connected by a line. Important notes:
+// - Props: batting (player seasons), playerName, selectedStat, onStatChange
+// - Fetches distribution data via getStatDistribution(selectedStat, ALL_SEASONS)
+// - Builds SVG paths for each season's violin and overlays player points
 import { useState, useEffect, useRef } from 'react'
 import { getStatDistribution } from '../../api/baseballApi'
 import './CareerViolinChart.css'
@@ -52,7 +58,7 @@ function CareerDistributionChart({ batting, playerName, selectedStat, onStatChan
     const PLOT_H = HEIGHT - MARGIN.top - MARGIN.bottom
 
     // Full historical range — not just player seasons
-    const ALL_SEASONS = Array.from({ length: 36 }, (_, i) => 1990 + i)
+    const ALL_SEASONS = Array.from({ length: 76 }, (_, i) => 1950 + i)
 
 // Player's seasons for dot rendering
     const sortedBatting = [...batting].sort((a, b) => a.season - b.season)

@@ -1,4 +1,11 @@
 // src/components/player/CareerStatChart.jsx
+// CareerStatChart renders an interactive timeseries chart for a single player.
+// It combines the player's per-season stat with league context (league average and leader)
+// fetched from the API so you can compare the player's performance against the league.
+// Key points:
+// - Props: batting (player seasons), playerName, selectedStat, onStatChange
+// - Fetches league context via getBattingLeagueContext(selectedStat, seasons)
+// - Uses Recharts (ComposedChart/Line) to draw player, league average and league leader lines
 import { useState, useEffect } from 'react'
 import {
     ComposedChart,

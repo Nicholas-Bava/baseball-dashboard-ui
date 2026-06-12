@@ -1,4 +1,8 @@
 // src/components/player/CareerStatsTable.jsx
+// Simple table that lists a player's season-by-season counting and rate stats.
+// Props:
+// - batting: array of season objects
+// - onSeasonClick: callback when a row is clicked (used to open season modal)
 import './CareerStatsTable.css'
 
 // Rate stats that get special coloring
